@@ -9,7 +9,8 @@ Details can be found [here](https://www.coursera.org/learn/reproducible-research
 
 ## Loading and preprocessing the data
 We load the data directly from the zip archive "activity.zip" and transform the "date" column to an appropriate date format.
-```{r message = FALSE}
+
+```r
 #use message = FALSE to hide messages from loading the library
 library(dplyr)
 act <- read.table(unz("activity.zip","activity.csv"), header = TRUE, sep = ",")
@@ -17,37 +18,47 @@ act <- transform(act, date = as.Date(date))
 ```
 
 ## What is mean total number of steps taken per day?
-```{r message = FALSE}
+
+```r
 #use message = FALSE to hide messages from loading the library
 library(ggplot2)
 total_steps <- act %>% group_by(date) %>% summarize(steps = sum(steps, na.rm = TRUE))
 qplot(steps, data = total_steps, bins = 50, main = "Daily steps", xlab = "Number of steps per day", ylab = "Count")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 mean_steps <- mean(total_steps$steps)
 median_steps <- median(total_steps$steps)
 ```
 
-The mean of the total steps per day is `r mean_steps` and the median is `r median_steps`.
+The mean of the total steps per day is 9354.2295082 and the median is 10395.
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 avg_steps <- act %>%  group_by(interval) %>% summarize(steps = mean(steps, na.rm = TRUE))
 qplot(interval, steps, data=avg_steps, geom = "line", main = "Steps per time interval", xlab = "Interval", ylab = "Steps")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
 ## Imputing missing values
 ### Number of missing values
-```{r}
+
+```r
 #there are no missing dates or intervals, it suffices to calculate the missing steps
 missing_values <- sum(is.na(is.na(act$steps)))
 ```
 
-The number of rows with missing values is `r missing_values`.
+The number of rows with missing values is 0.
 
 ### Imputation
 We impute the missing steps by taking the mean of the respective time interval.
-```{r}
+
+```r
 #impute values by taking the mean by interval
 imputed_values <- act %>% group_by(interval) %>% summarize(mean = mean(steps, na.rm = TRUE))
 
@@ -60,24 +71,29 @@ for(i in 1:nrow(act_impute)){
         act_impute$steps[i] <- imputed_values$mean[index]
     }
 }
-
 ```
 
 Next, we take a look at the average daily activity pattern again.
 
-```{r}
+
+```r
 total_steps_imputed <- act_impute %>% group_by(date) %>% summarize(steps = sum(steps))
 qplot(steps, data = total_steps_imputed, bins = 50, main = "Daily Steps", xlab = "Number of steps per day", ylab = "Count")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+```r
 imputed_mean_steps <- mean(total_steps_imputed$steps)
 imputed_median_steps <- median(total_steps_imputed$steps)
 ```
 
-When missing steps are imputed as above, the mean of the total steps per day is `r format(imputed_mean_steps, scientific=FALSE)` and the median is `r format(imputed_median_steps, scientific=FALSE)`. While the mean and median do not change too much, values around the mean become much more prominent after imputation.
+When missing steps are imputed as above, the mean of the total steps per day is 10766.19 and the median is 10766.19. While the mean and median do not change too much, values around the mean become much more prominent after imputation.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 We add a column indicating wether there respective date is a weekday or not. For this step, we use the imputed values from before.
-```{r}
+
+```r
 #transform weekdays to numbers (1 == Monday)
 wd <- as.numeric(strftime(act$date, "%u"))
 
@@ -94,10 +110,13 @@ weekday_or_weekend <- function(row){
 act_impute$day <- as.factor(sapply(wd, weekday_or_weekend))
 ```
 ### Activity patterns of weekdays and weekends
-```{r}
+
+```r
 avg_steps_day <- act_impute %>%  group_by(day, interval) %>% summarize(steps = mean(steps, na.rm = TRUE))
 
 g <- qplot(interval, steps, data=avg_steps_day, geom = "line", main = "Steps per time interval per kind of day", xlab = "Interval", ylab = "Number of steps") 
 g <- g + facet_grid(rows = day ~ .)
 print(g)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
