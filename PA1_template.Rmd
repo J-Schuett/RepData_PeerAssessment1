@@ -36,6 +36,13 @@ avg_steps <- act %>%  group_by(interval) %>% summarize(steps = mean(steps, na.rm
 qplot(interval, steps, data=avg_steps, geom = "line", main = "Steps per time interval", xlab = "Interval", ylab = "Steps")
 ```
 
+```{r}
+max_index <- which(avg_steps$steps == max(avg_steps$steps))
+max_interval <- avg_steps$interval[max_index]
+```
+
+The average maximum of steps occur in the interval `r max_interval`.
+
 ## Imputing missing values
 ### Number of missing values
 ```{r}

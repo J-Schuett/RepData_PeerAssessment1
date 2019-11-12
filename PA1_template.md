@@ -45,6 +45,14 @@ qplot(interval, steps, data=avg_steps, geom = "line", main = "Steps per time int
 
 ![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
+
+```r
+max_index <- which(avg_steps$steps == max(avg_steps$steps))
+max_interval <- avg_steps$interval[max_index]
+```
+
+The average maximum of steps occur in the interval 835.
+
 ## Imputing missing values
 ### Number of missing values
 
@@ -81,7 +89,7 @@ total_steps_imputed <- act_impute %>% group_by(date) %>% summarize(steps = sum(s
 qplot(steps, data = total_steps_imputed, bins = 50, main = "Daily Steps", xlab = "Number of steps per day", ylab = "Count")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 
 ```r
 imputed_mean_steps <- mean(total_steps_imputed$steps)
@@ -119,4 +127,4 @@ g <- g + facet_grid(rows = day ~ .)
 print(g)
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
